@@ -16,6 +16,13 @@ impl FieldElement {
         }
         Self { number, prime }
     }
+
+    pub fn pow(self, exponent: BigInt) -> Self {
+        let prime = self.prime.clone() - 1;
+        let n = exponent.modpow(&BigInt::from(1), &prime);
+        let number = self.number.modpow(&n, &self.prime);
+        Self { number, prime: self.prime }
+    }
 }
 
 impl fmt::Display for FieldElement {
@@ -111,6 +118,14 @@ mod tests {
         let c = FieldElement::new(BigInt::from(10), BigInt::from(13));
 
         assert_eq!(a*b, c);
+    }
+
+    #[test]
+    fn pow_field_elements() {
+        let a = FieldElement::new(BigInt::from(3), BigInt::from(13));
+        let b = FieldElement::new(BigInt::from(1), BigInt::from(13));
+
+        assert_eq!(a.pow(BigInt::from(3)), b);
     }
 
 }
