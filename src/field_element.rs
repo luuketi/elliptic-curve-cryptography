@@ -1,6 +1,6 @@
 use num_bigint::BigInt;
 use std::fmt;
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 
 #[derive(Debug, Eq)]
@@ -37,10 +37,23 @@ impl Add for FieldElement {
         if self.prime != other.prime {
             panic!("Cannot add two numbers in different Fields")
         }
-        let number = (self.number + other.number) % self.prime.clone();
+        let number = (self.number + other.number).modpow(&BigInt::from(1), &self.prime);
         Self { number, prime: self.prime }
     }
 }
+
+impl Sub for FieldElement {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        if self.prime != other.prime {
+            panic!("Cannot sub two numbers in different Fields")
+        }
+        let number = (self.number - other.number).modpow(&BigInt::from(1), &self.prime);
+        Self { number, prime: self.prime }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -64,5 +77,18 @@ mod tests {
         let c = FieldElement::new(BigInt::from(6), BigInt::from(13));
 
         assert_eq!(a+b, c);
+    }
+
+    #[test]
+    fn sub_field_elements() {
+        let a = FieldElement::new(BigInt::from(11), BigInt::from(19));
+        let b = FieldElement::new(BigInt::from(9), BigInt::from(19));
+        let c = FieldElement::new(BigInt::from(2), BigInt::from(19));
+        let d = FieldElement::new(BigInt::from(6), BigInt::from(19));
+        let e = FieldElement::new(BigInt::from(13), BigInt::from(19));
+        let f = FieldElement::new(BigInt::from(12), BigInt::from(19));
+
+        assert_eq!(a-b, c);
+        assert_eq!(d-e, f);
     }
 }
