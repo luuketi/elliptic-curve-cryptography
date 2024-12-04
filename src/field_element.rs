@@ -1,6 +1,6 @@
 use num_bigint::BigInt;
 use std::fmt;
-use std::ops::{Add, Sub};
+use std::ops::{Add, Mul, Sub};
 
 
 #[derive(Debug, Eq)]
@@ -54,6 +54,18 @@ impl Sub for FieldElement {
     }
 }
 
+impl Mul for FieldElement {
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self {
+        if self.prime != other.prime {
+            panic!("Cannot sub two numbers in different Fields")
+        }
+        let number = (self.number * other.number).modpow(&BigInt::from(1), &self.prime);
+        Self { number, prime: self.prime }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -91,4 +103,14 @@ mod tests {
         assert_eq!(a-b, c);
         assert_eq!(d-e, f);
     }
+
+    #[test]
+    fn mul_field_elements() {
+        let a = FieldElement::new(BigInt::from(3), BigInt::from(13));
+        let b = FieldElement::new(BigInt::from(12), BigInt::from(13));
+        let c = FieldElement::new(BigInt::from(10), BigInt::from(13));
+
+        assert_eq!(a*b, c);
+    }
+
 }
