@@ -1,6 +1,6 @@
-use std::ops::Add;
-use num_bigint::BigInt;
-
+use std::ops::{Add};
+use num_bigint::{BigInt, ToBigInt};
+use bigdecimal::{BigDecimal};
 
 #[derive(Clone, Debug, Eq)]
 pub struct Point {
@@ -40,8 +40,17 @@ impl Add for Point {
         if other.x == None {
             return self
         }
-        if self.x != None && other.x != None && self.x.unwrap() == other.x.unwrap() {
-            return Self::new(None, None, self.a, self.b)
+        if self.x != None && other.x != None {
+            if self.x.clone().unwrap() == other.x.clone().unwrap() {
+                return Self::new(None, None, self.a, self.b)
+            } else {
+                let s_num = other.y.unwrap() - self.y.clone().unwrap();
+                let s_den = other.x.clone().unwrap() - self.x.clone().unwrap();
+                let s = BigDecimal::from(s_num.clone()) / BigDecimal::from(s_den.clone());
+                let x = s.clone() * s.clone() - self.x.clone().unwrap() - other.x.clone().unwrap();
+                let y = s.clone() * (self.x.clone().unwrap() - x.clone()) - self.y.unwrap();
+                return Self::new(x.to_bigint(), y.to_bigint(), self.a, self.b)
+            }
         }
 
         Self {
@@ -82,5 +91,15 @@ mod tests {
         assert_eq!(inf.clone() + p2.clone(), p2);
         assert_eq!(p1.clone() + p2.clone(), inf);
     }
+
+    #[test]
+    fn add_points_with_x1_notequal_to_x2() {
+        let p1 = Point::new(BigInt::from(2).into(), BigInt::from(5).into(), BigInt::from(5), BigInt::from(7));
+        let p2 = Point::new(BigInt::from(-1).into(), BigInt::from(-1).into(), BigInt::from(5), BigInt::from(7));
+        let p3 = Point::new(BigInt::from(3).into(), BigInt::from(-7).into(), BigInt::from(5), BigInt::from(7));
+
+        assert_eq!(p1 + p2, p3);
+    }
+
 
 }
