@@ -40,32 +40,28 @@ impl Add for Point {
         if other.x == None {
             return self
         }
-        if self.x != None && other.x != None {
-            if self == other {
-                let s_num : BigInt = 3 * self.x.clone().unwrap() * self.x.clone().unwrap() + self.a.clone();
-                let s_den : BigInt = 2 * self.y.clone().unwrap();
-                let s = BigDecimal::from(s_num.clone()) / BigDecimal::from(s_den.clone());
-                let x : BigDecimal = s.clone() * s.clone() - 2 * self.x.clone().unwrap();
-                let y : BigDecimal = s.clone() * (self.x.clone().unwrap() - x.clone()) - self.y.unwrap();
-                return Self::new(x.to_bigint(), y.to_bigint(), self.a, self.b)
-            }
-            else if self.x.clone().unwrap() == other.x.clone().unwrap() {
+        let x1 = self.x.clone().unwrap();
+        let x2 = other.x.clone().unwrap();
+        let y1 = self.y.clone().unwrap();
+        let y2 = other.y.clone().unwrap();
+
+        if self == other {
+            if y1 == BigInt::from(0) {
                 return Self::new(None, None, self.a, self.b)
             } else {
-                let s_num = other.y.unwrap() - self.y.clone().unwrap();
-                let s_den = other.x.clone().unwrap() - self.x.clone().unwrap();
-                let s = BigDecimal::from(s_num.clone()) / BigDecimal::from(s_den.clone());
-                let x = s.clone() * s.clone() - self.x.clone().unwrap() - other.x.clone().unwrap();
-                let y = s.clone() * (self.x.clone().unwrap() - x.clone()) - self.y.unwrap();
+                let s = BigDecimal::from(3 * x1.clone().pow(2) + self.a.clone()) / BigDecimal::from(2 * y1);
+                let x : BigDecimal = s.clone() * s.clone() - 2 * x1.clone();
+                let y : BigDecimal = s.clone() * (x1 - x.clone()) - self.y.unwrap();
                 return Self::new(x.to_bigint(), y.to_bigint(), self.a, self.b)
             }
         }
-
-        Self {
-            a: Default::default(),
-            b: Default::default(),
-            x: None,
-            y: None,
+        else if x1 == x2 {
+            return Self::new(None, None, self.a, self.b)
+        } else {
+            let s = BigDecimal::from(y2 - y1) / BigDecimal::from(x2.clone() - x1.clone());
+            let x = s.clone() * s.clone() - x1.clone() - x2;
+            let y = s.clone() * (x1 - x.clone()) - self.y.unwrap();
+            return Self::new(x.to_bigint(), y.to_bigint(), self.a, self.b)
         }
     }
 }
@@ -117,6 +113,5 @@ mod tests {
 
         assert_eq!(p1 + p2, p3);
     }
-
 
 }
