@@ -1,4 +1,4 @@
-# Elliptic Curve Cryptography from Programming Bitcoin
+# Elliptic Curve Cryptography from Programming Bitcoin book
 
 
 
