@@ -1,6 +1,7 @@
-use std::ops::{Add};
+use std::ops::{Add, BitAnd, BitAndAssign, Mul};
 use num_bigint::{BigInt, ToBigInt};
-use bigdecimal::{BigDecimal};
+use bigdecimal::{BigDecimal, One, Zero};
+use crate::field_element::FieldElement;
 
 #[derive(Clone, Debug, Eq)]
 pub struct Point {
@@ -11,6 +12,14 @@ pub struct Point {
 }
 
 impl Point {
+    pub fn from_field_element(x: Option<FieldElement>, y: Option<FieldElement>, a: FieldElement, b: FieldElement) -> Self {
+        if Some(x.clone()) != None && Some(y.clone()) != None {
+            Self::new(x.unwrap().number().into(), y.unwrap().number().into(), a.number(), b.number())
+        } else {
+            Self::new(None, None, a.number(), b.number())
+        }
+    }
+
     pub fn new(x: Option<BigInt>, y: Option<BigInt>, a: BigInt, b: BigInt) -> Self {
         if x != None && y != None {
             if y.clone().unwrap().pow(2) != x.clone().unwrap().pow(3) + a.clone() * x.clone().unwrap() + b.clone() {
@@ -19,6 +28,11 @@ impl Point {
         }
         Self { a, b, x, y }
     }
+
+    pub fn compare_x(self, r: BigInt) -> bool {
+        self.x.unwrap() == r
+    }
+
 }
 
 impl PartialEq for Point {
@@ -63,6 +77,24 @@ impl Add for Point {
             let y = s.clone() * (x1 - x.clone()) - self.y.unwrap();
             return Self::new(x.to_bigint(), y.to_bigint(), self.a, self.b)
         }
+    }
+}
+
+impl Mul<BigInt> for Point {
+    type Output = Self;
+
+    fn mul(self, coefficient: BigInt) -> Self::Output {
+        let mut coef = coefficient;
+        let mut current = self.clone();
+        let mut result = Self::new(None, None, self.a, self.b);
+        while coef.clone() != BigInt::zero() {
+            if coef.clone().bitand( BigInt::one() ) != BigInt::zero() {
+                result = result + current.clone();
+            }
+            current = current.clone() + current.clone();
+            coef.bitand_assign( BigInt::one() );
+        }
+        result
     }
 }
 

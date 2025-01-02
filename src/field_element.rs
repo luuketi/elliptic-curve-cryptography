@@ -3,13 +3,17 @@ use std::fmt;
 use std::ops::{Add, Div, Mul, Sub};
 
 
-#[derive(Debug, Eq)]
+#[derive(Debug, Eq, Clone)]
 pub struct FieldElement {
     number : BigInt,
     prime : BigInt,
 }
 
 impl FieldElement {
+    pub fn from_i32(number: i32, prime: i32) -> Self {
+        Self::new( BigInt::from(number), BigInt::from(prime) )
+    }
+
     pub fn new(number: BigInt, prime: BigInt) -> Self {
         if number >= prime || number < BigInt::from(0) {
             panic!("Num {} not in field range 0 to {}", number, prime - 1);
@@ -23,6 +27,10 @@ impl FieldElement {
         let number = self.number.modpow(&n, &self.prime);
         Self { number, prime: self.prime }
     }
+
+    pub fn number(self) -> BigInt {
+        return self.number
+    }
 }
 
 impl fmt::Display for FieldElement {
@@ -34,6 +42,12 @@ impl fmt::Display for FieldElement {
 impl PartialEq for FieldElement {
     fn eq(&self, other: &Self) -> bool {
         self.number == other.number && self.prime == other.prime
+    }
+}
+
+impl PartialEq<BigInt> for FieldElement {
+    fn eq(&self, other: &BigInt) -> bool {
+        self.number == *other
     }
 }
 
