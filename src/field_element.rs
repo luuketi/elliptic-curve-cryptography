@@ -29,7 +29,7 @@ impl FieldElement {
     }
 
     pub fn number(self) -> BigInt {
-        return self.number
+        self.number
     }
 }
 

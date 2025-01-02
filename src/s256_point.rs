@@ -1,7 +1,7 @@
+#![allow(dead_code)]
 use std::ops::{Add, Mul};
 use num_bigint::{BigInt, Sign};
 use crate::point::Point;
-use hex;
 use crate::field_element::FieldElement;
 use crate::s256_field::S256Field;
 use crate::signature::Signature;
@@ -18,7 +18,7 @@ impl S256Point {
     pub fn new(x: Option<BigInt>, y: Option<BigInt>) -> Self {
         let a = S256Field::new(0.into());
         let b = S256Field::new(7.into());
-        if Some(x.clone()) != None && Some(y.clone()) != None {
+        if x.clone().is_some() && y.clone().is_some() {
             let new_x : FieldElement = S256Field::new(x.unwrap()).into();
             let new_y : FieldElement = S256Field::new(y.unwrap()).into();
             Self { point: Point::from_field_element(new_x.into(), new_y.into(), a.into(), b.into()) }

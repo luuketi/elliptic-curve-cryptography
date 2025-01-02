@@ -13,7 +13,7 @@ pub struct Point {
 
 impl Point {
     pub fn from_field_element(x: Option<FieldElement>, y: Option<FieldElement>, a: FieldElement, b: FieldElement) -> Self {
-        if Some(x.clone()) != None && Some(y.clone()) != None {
+        if x.clone().is_some() && y.clone().is_some() {
             Self::new(x.unwrap().number().into(), y.unwrap().number().into(), a.number(), b.number())
         } else {
             Self::new(None, None, a.number(), b.number())
@@ -21,10 +21,9 @@ impl Point {
     }
 
     pub fn new(x: Option<BigInt>, y: Option<BigInt>, a: BigInt, b: BigInt) -> Self {
-        if x != None && y != None {
-            if y.clone().unwrap().pow(2) != x.clone().unwrap().pow(3) + a.clone() * x.clone().unwrap() + b.clone() {
+        if x.is_some() && y.is_some() &&
+            y.clone().unwrap().pow(2) != x.clone().unwrap().pow(3) + a.clone() * x.clone().unwrap() + b.clone() {
                 panic!("'({}, {}) is not on the curve", x.unwrap(), y.unwrap());
-            }
         }
         Self { a, b, x, y }
     }
@@ -48,10 +47,10 @@ impl Add for Point {
         if self.a != other.a || self.b != other.b {
             panic!("Points {:?}, {:?} are not on the same curve", self, other)
         }
-        if self.x == None {
+        if self.x.is_none() {
             return other
         }
-        if other.x == None {
+        if other.x.is_none() {
             return self
         }
         let x1 = self.x.clone().unwrap();
@@ -61,21 +60,21 @@ impl Add for Point {
 
         if self == other {
             if y1 == BigInt::from(0) {
-                return Self::new(None, None, self.a, self.b)
+                Self::new(None, None, self.a, self.b)
             } else {
                 let s = BigDecimal::from(3 * x1.clone().pow(2) + self.a.clone()) / BigDecimal::from(2 * y1);
                 let x : BigDecimal = s.clone() * s.clone() - 2 * x1.clone();
                 let y : BigDecimal = s.clone() * (x1 - x.clone()) - self.y.unwrap();
-                return Self::new(x.to_bigint(), y.to_bigint(), self.a, self.b)
+                Self::new(x.to_bigint(), y.to_bigint(), self.a, self.b)
             }
         }
         else if x1 == x2 {
-            return Self::new(None, None, self.a, self.b)
+            Self::new(None, None, self.a, self.b)
         } else {
             let s = BigDecimal::from(y2 - y1) / BigDecimal::from(x2.clone() - x1.clone());
             let x = s.clone() * s.clone() - x1.clone() - x2;
             let y = s.clone() * (x1 - x.clone()) - self.y.unwrap();
-            return Self::new(x.to_bigint(), y.to_bigint(), self.a, self.b)
+            Self::new(x.to_bigint(), y.to_bigint(), self.a, self.b)
         }
     }
 }

@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use num_bigint::BigInt;
 use crate::s256_point::S256Point;
 
